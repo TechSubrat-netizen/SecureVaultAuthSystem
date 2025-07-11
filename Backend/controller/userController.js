@@ -1,5 +1,8 @@
 import bcrypt from 'bcrypt';
 import userModel from "../model/userModel.js";
+import Cookies from 'cookies';
+ import jwt from'jsonwebtoken'
+let secretKey='tranzol@123'
 
 // Registration user
 export const register = async (req, res) => {
@@ -21,11 +24,49 @@ export const register = async (req, res) => {
   }
 };
 //Login user
-export const Login= async ()=>{
-    try {
-         
-        
-    } catch (error) {
-        res.status(500).send(error)
+export const Login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (email && password) {
+      const user = await userModel.findOne({ email });
+      if (user) {
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (isPasswordValid) {
+          // Generate JWT token
+          const token = jwt.sign({ userId: user._id, email: user.email }, secretKey, { expiresIn: '1h' });
+          console.log("Generated Token",token)
+          // Send token as HTTP-only cookie
+          res.cookie('token', token, {
+            httpOnly: true,
+            secure: false, // Set to true if using HTTPS
+            maxAge: 3600000 // 1 hour
+          });
+          // Respond with user info (excluding password)
+          const { password, ...userInfo } = user._doc;
+          console.log(user._doc)
+          res.status(200).send({ msg: 'Login successful', user: userInfo });
+        } else {
+          res.status(401).send({ msg: 'Invalid password' });
+        }
+      } else {
+        res.status(404).send({ msg: 'User not found' });
+      }
+    } else {
+      res.status(400).send({ msg: 'Please fill up all the fields' });
     }
-}
+  } catch (error) {
+    console.error('Login Error:', error);
+    res.status(500).send(error);
+  }
+};
+//Logout User
+ const Logout=async (req,res)=>{
+  try {
+    res.clear.cookie()
+    
+  } catch (error) {
+     res.status(500).send({msg:"Internal server error"})
+  }
+ }
+console.log(Cookies);
+console.log(userModel)
