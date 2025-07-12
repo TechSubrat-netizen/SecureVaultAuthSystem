@@ -2,7 +2,9 @@ import bcrypt from 'bcrypt';
 import userModel from "../model/userModel.js";
 import Cookies from 'cookies';
  import jwt from'jsonwebtoken'
-let secretKey='tranzol@123'
+  import sendOTP from '../service/otpservice.js';
+let secretKey='tranzol@123';
+
 
 // Registration user
 export const register = async (req, res) => {
@@ -60,13 +62,38 @@ export const Login = async (req, res) => {
   }
 };
 //Logout User
- const Logout=async (req,res)=>{
+export const Logout = async (req, res) => {
   try {
-    res.clear.cookie()
-    
+    res.clearCookie('token');
+    res.status(200).send({ msg: 'Logout successful' });
   } catch (error) {
-     res.status(500).send({msg:"Internal server error"})
+    res.status(500).send({ msg: 'Internal server error' });
+  }
+};
+//sending  OTP handler
+ export const otpSender= async(req,res)=>{
+  try {
+    const {email}=req.body;
+    console.log(req.body)
+    // Check if email exists in user database
+    const user = await userModel.findOne({ email });
+    console.log(user)
+    if (!user) {
+      return res.status(404).send({ msg: "Email not registered" });
+    }
+    console.log(email);
+    try {
+      await sendOTP(email);
+      console.log(email)
+       res.status(200).send({msg:"OTP send successfully, please check your mail for further verification"})
+    } catch (mailError) {
+      console.error("OTP Send Error:", mailError);
+      res.status(500).send({ msg: "Failed to send OTP", error: mailError.message || mailError });
+    }
+  } catch (error) {
+    console.error("OTP Handler Error:", error);
+    res.status(500).send({ msg: "Internal server error", error: error.message || error });
   }
  }
-console.log(Cookies);
-console.log(userModel)
+
+
