@@ -1,8 +1,10 @@
+import dotenv from 'dotenv'
+ dotenv.config()
 import adminModel from "../model/adminModel.js";
 //admin login
-let adminEmail='subratsahoo3883@gmail.com';
-let adminPassword='Subrat@1234'
- const adminLogin= async(req,res)=>{
+let adminEmail=process.env.ADMIN_EMAIL;
+let adminPassword=process.env.ADMIN_PASSWORD;
+  export const adminLogin= async(req,res)=>{
     try {
         const {email,password}= req.body;
         if(email && password){
@@ -26,4 +28,3 @@ let adminPassword='Subrat@1234'
           res.status(500),json({msg:"Internal server error"})
     }
  }
- export default   adminLogin;

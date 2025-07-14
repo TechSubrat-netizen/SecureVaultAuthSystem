@@ -1,22 +1,21 @@
+ import dotenv from 'dotenv';
+ // dotenv configursation
+ dotenv.config()
 import bcrypt from 'bcrypt';
 import userModel from "../model/userModel.js";
 import Cookies from 'cookies';
  import jwt from'jsonwebtoken'
   import sendOTP from '../service/otpservice.js';
- import dotenv from 'dotenv';
- // dotenv configursation
- dotenv.config()
+
 let secretKey=process.env.SECRET_KEY;
  console.log(secretKey)
-
-
 // Registration user
 export const register = async (req, res) => {
   try {
     const data = req.body;
     console.log("Original Password:", data.password);
 
-    const saltRounds = 10;
+    const saltRounds = process.env.SALT_ROUND;
     const encryptPassword = await bcrypt.hash(data.password, saltRounds);
     console.log("Encrypted Password:", encryptPassword);
 
