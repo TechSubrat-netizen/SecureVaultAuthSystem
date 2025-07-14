@@ -3,7 +3,11 @@ import userModel from "../model/userModel.js";
 import Cookies from 'cookies';
  import jwt from'jsonwebtoken'
   import sendOTP from '../service/otpservice.js';
-let secretKey='tranzol@123';
+ import dotenv from 'dotenv';
+ // dotenv configursation
+ dotenv.config()
+let secretKey=process.env.SECRET_KEY;
+ console.log(secretKey)
 
 
 // Registration user
